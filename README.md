@@ -24,15 +24,17 @@ https://hub.docker.com/r/sksdotsauravs/redakto-app-charite
    ```
    docker run --gpus "device=0" -p 8000:8000 -p 8501:8501 sksdotsauravs/redakto-app-charite:latest
    ```
-4. Access the application UI built with Streamlit by navigating to `http://localhost:8501` in your web browser.
+4. Access the application UI built with Streamlit by navigating to http://localhost:8501 in your web browser.
 
 5. The documentation for the backend API built with FastAPI can be accessed at 
     
-    (a) `http://localhost:8000/api/docs` or at 
+    (a) http://localhost:8000/api/docs or at 
 
-    (b) `http://localhost:8000/api/redoc` or at 
-    
-    (c) `http://localhost:8000/api/openapi.json`
+    (b) http://localhost:8000/api/redoc or at 
+
+    (c) http://localhost:8000/api/openapi.json
+
+<br>
 
 ## UI Preview
 ![Redakto App UI Preview](redakto_app_charite_ui_preview.png)
