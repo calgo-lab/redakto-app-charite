@@ -1,0 +1,467 @@
+---
+app_name: Redakto
+app_version: charite-1.0.0
+backend_url: http://localhost:8000
+entity_set_info: |  
+  An entity set represents a collection of entity labels derived from a specific corpus used to fine-tune Named Entity Recognition (NER) models. Each entity set is tailored to the domain and characteristics of its source corpus, reflecting the particular types of information that are relevant within that context.
+  
+  Different corpora are constructed from texts originating from distinct domains, resulting in entity sets with varying granularity and focus. For example, the CodE Alltag entity set is designed for email communications and includes labels such as EMAIL, PHONE, and URL under the CONTACT category. In contrast, the GraSCCo_PHI entity set is specialized for clinical documentation and features domain-specific labels like NAME_DOCTOR, NAME_PATIENT, LOCATION_HOSPITAL, and PROFESSION.
+  
+  This domain-specific approach ensures that the NER models can accurately identify and classify entities according to the unique requirements of each text type and application scenario.
+label_type_info: |  
+  Label Type controls how the entities should be labeled.
+  
+  Coarse-grained labels represent broader categories, while fine-grained labels provide more specific classifications within those categories. For instance, the CONTACT label type may include coarse-grained labels like EMAIL, PHONE, and URL, each representing a specific type of contact information.
+
+  This hierarchical structure enhances the flexibility for different use-case scenarios.
+supported_models_info: |  
+  Supported Models are pre-trained NER models that have been fine-tuned on specific corpora corresponding to the selected entity set. These models are designed to recognize and classify entities based on the labels defined in the entity set.
+
+  Each supported model is associated with a particular architecture (e.g., XLM-RoBERTa large) and has been trained using a subset of the corpus data.
+
+  Users can select from the available supported models to apply NER to their input texts, leveraging the specialized knowledge embedded in these models for effective entity recognition.
+entity_set_models:
+- entity_set_id: codealltag
+  corpus_name: CodE Alltag
+  corpus_doctype: Email
+  corpus_description: CodE Alltag is a German-language email corpus
+  corpus_version: '2022'
+  corpus_language: German
+  corpus_links:
+  - https://github.com/codealltag
+  entity_set_labels:
+  - id: CONTACT
+    description: >-
+      CONTACT encompasses EmailAddress (EMAIL), PhoneNumber (PHONE)
+      and URL (URL)
+    background_color: "#FF99FF"
+    border_color: "#CC7ACC"
+    fine_grained:
+    - id: EMAIL
+      description: Email addresses
+    - id: PHONE
+      description: Phone numbers, including fax numbers
+    - id: URL
+      description: URLs, as well as other forms of domain names
+  - id: DATE
+    description: >-
+      Date (DATE) includes all sorts of date descriptions, such as date of
+      birth, marriage, or death, starting and ending dates of contracts, etc.
+    background_color: "#FF8A80"
+    border_color: "#FF5252"
+    fine_grained:
+    - id: DATE
+      description: >-
+        Date includes all sorts of date descriptions, such as date of
+        birth, marriage, or death, starting and ending dates of contracts, etc.
+  - id: ID
+    description: >-
+      Identifier (ID) includes UniqueFormalIdentifier (UFID) and all kinds of
+      invented UserNames (USER) for IT systems and platforms
+    background_color: "#B2FF59"
+    border_color: "#76FF03"
+    fine_grained:
+    - id: UFID
+      description: >-
+        User-provided supplementary artificial name for all kinds of technical
+        appliances to represent persons (students, customers, employees,
+        members of social security systems (SSN), authors (ORCHID), etc.),
+        computer systems (IP addresses), or other artifacts (e.g., IBANs, DOIs)
+    - id: USER
+      description: >-
+        All kinds of invented UserNames for IT systems and platforms
+  - id: LOCATION
+    description: >-
+      The Location (LOCATION) category subsumes StreetName (STREET),
+      StreetNumber (STREETNO), ZipCode (ZIP), and CityName (CITY)
+    background_color: "#42A5F5"
+    border_color: "#2196F3"
+    fine_grained:
+    - id: CITY
+      description: >-
+        Stands for villages, towns, cities, larger metropolitan areas and
+        regions smaller than a state
+    - id: STREET
+      description: Street names
+    - id: STREETNO
+      description: Street numbers, house numbers
+    - id: ZIP
+      description: Zip codes
+  - id: NAME
+    description: >-
+      The Name (NAME) label represent linguistic references to human entities,
+      encompassing individual male and female names as well as collective
+      family names.
+    background_color: "#EEFF41"
+    border_color: "#C6FF00"
+    fine_grained:
+    - id: FAMILY
+      description: Family names
+    - id: FEMALE
+      description: Female given names
+    - id: MALE
+      description: Male given names
+  - id: ORGANIZATION
+    description: >-
+      The Organization (ORGANIZATION) category includes all types of legal
+      actors such as companies, brands, institutions and agencies, etc.
+    background_color: "#B388FF"
+    border_color: "#7C4DFF"
+    fine_grained:
+    - id: ORG
+      description: >-
+        The Organization (ORG) category includes all types of legal actors
+        such as companies, brands, institutions and agencies, etc.
+  sample_texts:
+  - "Herr Markus Schneider, geboren am 14. März 1980 und wohnhaft in der Hauptstraße 12 in 10115 Berlin, stellte sich am 22. Mai 2024 mit thorakalen Schmerzen in unserer Notaufnahme vor. Die Beschwerden hatten laut eigener Angabe bereits am 20. Mai begonnen. Es wurde ein akutes Koronarsyndrom in Kombination mit einer bekannten Hypertonie diagnostiziert. Die Therapie bestand aus einer sofortigen Gabe von Acetylsalicylsäure und Heparin, woraufhin eine stationäre Aufnahme erfolgte. Am 23. Mai wurde eine koronare Angiographie durchgeführt. Der Patient konnte am 27. Mai 2024 in stabilem Zustand entlassen und zur weiteren Betreuung an seinen Hausarzt, Dr. Julia Meier in der Karl-Marx-Allee 50, übergeben werden."
+  - "Frau Sabrina Koch, geboren am 2. November 1972, wohnhaft im Lindenweg 8, 80331 München, berichtete über eine zunehmende Belastungsdyspnoe, die sich über mehrere Wochen entwickelt hatte. In der internistischen Abklärung wurde eine chronisch obstruktive Lungenerkrankung (COPD) im Stadium II festgestellt. Therapeutisch wurde eine bronchodilatatorische Inhalationstherapie mit Salbutamol sowie eine kurzfristige Prednisolon-Gabe eingeleitet. Nach einer klinischen Stabilisierung wurde Frau Koch am 10. April 2025 entlassen und gebeten, sich bei ihrem Lungenfacharzt, Dr. Anton Berg in der Leopoldstraße 75, zur Verlaufskontrolle vorzustellen."
+  - "Herr Peter Brandt, geb. 8. August 1955, wohnhaft in der Schulstraße 23, 04109 Leipzig, suchte unsere Einrichtung aufgrund seit Monaten bestehender Rückenschmerzen auf. Eine bildgebende Diagnostik bestätigte einen Bandscheibenvorfall auf Höhe L4/L5. Es zeigten sich jedoch keine neurologischen Defizite. Wir empfahlen zunächst eine konservative Therapie bestehend aus gezielter Physiotherapie und analgetischer Medikation. Nach ambulanter Vorstellung und ausführlicher Beratung wurde Herr Brandt am 17. Juni 2025 zur weiteren Behandlung an Dr. Yvonne Schröder vom Orthopädiezentrum Leipzig überwiesen."
+  - "Frau Dr. med. Hannah Reuter, geboren am 29. Juni 1975, gesetzlich versichert bei der AOK (Versichertennummer 123456789), wurde am 3. Februar 2025 wegen einer mittelgradigen depressiven Episode (ICD-10: F32.1) stationär aufgenommen. Die Patientin klagte über Antriebslosigkeit, Schlafstörungen und gedrückte Stimmungslage. Im Rahmen des Aufenthalts wurde eine antidepressive Medikation mit Sertralin eingeleitet, begleitet von kognitiver Verhaltenstherapie in Einzel- und Gruppensitzungen. Am 17. März 2025 konnte Frau Reuter in gebessertem Zustand entlassen werden. Für die Weiterbehandlung empfehlen wir eine ambulante Psychotherapie bei Herrn Dipl.-Psych. Felix Bauer in Berlin."
+  - "Herr Mehmet Yildirim, geboren am 12. Januar 1984 und wohnhaft in der Sonnenallee 104, 12045 Berlin, wurde am 15. Januar 2025 aufgrund einer manifesten Alkoholabhängigkeit stationär aufgenommen. Die Entzugsbehandlung erfolgte unter engmaschiger medizinischer Überwachung. Nach erfolgreichem körperlichem Entzug und begleitender psychotherapeutischer Intervention konnte Herr Yildirim am 30. Januar 2025 entlassen werden. Als Nachsorge wird die Teilnahme an der Selbsthilfegruppe „Nüchtern leben“ in Berlin-Neukölln dringend empfohlen."
+  - "Frau Anna-Lena Weiß, geboren am 19. Juli 2002, wohnhaft in der Mozartstraße 9, 68161 Mannheim, wurde am 5. April 2025 stationär in unserer psychosomatischen Klinik aufgenommen. Die Aufnahme erfolgte aufgrund einer generalisierten Angststörung (ICD-10: F41.1), die sich in dauerhafter innerer Unruhe, Konzentrationsproblemen und körperlichen Symptomen äußerte. Therapeutisch kamen sowohl Verhaltenstherapie als auch Atemtechniken und eine medikamentöse Behandlung mit Escitalopram zum Einsatz. Nach zwei Wochen stabiler Verbesserung wurde sie am 19. April 2025 entlassen und zur weiteren Behandlung an Frau Dr. Catharina Lenz vom Mannheimer Zentrum für Angststörungen übergeben."
+  - "Tim-Oliver Neumann, geboren am 12. September 2010, wurde am 18. Januar 2025 im Universitätsklinikum Leipzig aufgrund einer akuten Appendizitis operativ behandelt. Die Entscheidung zur sofortigen Operation erfolgte nach positiver klinischer Untersuchung und laborchemischem Nachweis einer Entzündung. Die Appendektomie wurde minimal-invasiv durchgeführt und verlief komplikationslos. Der Patient konnte am 21. Januar 2025 in gutem Allgemeinzustand entlassen werden."
+  - "Frau Heike Möller, geboren am 25. April 1963, stellte sich im Helios Klinikum München West mit rechtsseitigen Oberbauchschmerzen vor. Die Diagnostik bestätigte das Vorliegen multipler Gallensteine mit wiederholten Koliken. Am 2. Mai 2025 wurde eine laparoskopische Cholezystektomie durchgeführt. Der postoperative Verlauf gestaltete sich unauffällig. Frau Möller wurde am 5. Mai 2025 in gutem Zustand entlassen mit der Empfehlung zur Nachkontrolle bei ihrem Hausarzt, Dr. Stefan Knoll."
+  - "Dr. Thomas Henke, geboren am 1. Januar 1970, wurde am 10. März 2025 in der neurochirurgischen Abteilung der Charité Berlin aufgrund eines Bandscheibenprolapses im Segment L5/S1 operiert. Die mikrochirurgische Diskektomie verlief ohne Komplikationen. Bereits am ersten postoperativen Tag zeigte sich eine deutliche Besserung der Beinschmerzen. Am 14. März 2025 konnte Herr Dr. Henke beschwerdearm nach Hause entlassen werden."
+  supported_models_root_dir:
+  - models
+  - codealltag
+  supported_models:
+  - model_id: xlm-roberta-large
+    model_name: facebookai/xlm-roberta-large
+    model_description: >-
+      The XLM-RoBERTa large model fine-tuned on 105,000 email texts
+      (train-split of 175,000 email texts) of CodE Alltag corpus for Named
+      Entity Recognition (NER) downstream task.
+    model_links:
+    - https://github.com/calgo-lab/redakt-codealltag
+    model_type: NER
+    model_type_description: Named Entity Recognition
+    model_loading_strategy: local_disk_storage
+    model_directory_name:
+    - xlm-roberta-large
+    model_version: '1.0'
+    model_impl: SequenceTagger
+    model_system_requirements:
+    - flair==0.15.1
+- entity_set_id: grascco
+  corpus_name: GraSCCo_PHI
+  corpus_doctype: Clinical
+  corpus_description: >-
+    GraSCCo - is a collection of artificially generated German-language
+    clinical summaries
+  corpus_version: '2024'
+  corpus_language: German
+  corpus_links:
+  - https://zenodo.org/records/11502329
+  - https://ebooks.iospress.nl/doi/10.3233/SHTI240853
+  entity_set_labels:
+  - id: AGE
+    description: >-
+      The AGE category is used to annotate all age information provided by
+      patients and their relatives. Only the number should be annotated, not
+      the unit in years, e.g. [87] Jahre
+    background_color: "#D2B48C"
+    border_color: "#A89070"
+    fine_grained:
+    - id: AGE
+      description: >-
+        The AGE category is used to annotate all age information provided by
+        patients and their relatives. Only the number should be annotated, not
+        the unit in years, e.g. [87] Jahre
+  - id: CONTACT
+    description: >-
+      The CONTACT category covers information that represents contact
+      information. This includes telephone numbers, email addresses, fax
+      numbers, internet addresses, and IP addresses.
+    background_color: "#FF99FF"
+    border_color: "#CC7ACC"
+    fine_grained:
+    - id: CONTACT_EMAIL
+      description: "E-Mail addresses, e.g., Mail: [max.muster@beispiel.de]"
+    - id: CONTACT_FAX
+      description: Fax numbers, e.g., Fax. [04324-65432]
+    - id: CONTACT_PHONE
+      description: Telephone numbers, e.g., Tel. [02345-12345]
+    - id: CONTACT_URL
+      description: "URLs, e.g., Internet: [www.beispiel.de]"
+  - id: DATE
+    description: >-
+      The DATE category covers all possible types of dates: birth dates, death
+      dates, dates of admission, transfer, and discharge, as well as previous
+      treatments. Only the date should be annotated, not the reference to it.
+      Individual references to times, days of the week, and months should not
+      be annotated.
+    background_color: "#FF8A80"
+    border_color: "#FF5252"
+    fine_grained:
+    - id: DATE
+      description: >-
+        The DATE category covers all possible types of dates: birth dates, death
+        dates, dates of admission, transfer, and discharge, as well as previous
+        treatments. Only the date should be annotated, not the reference to it.
+        Individual references to times, days of the week, and months should not
+        be annotated.
+  - id: ID
+    description: >-
+      The ID (Identifier) category includes all references to identifiers
+      using a sequence of characters, including numbers. This includes patient
+      IDs and case IDs, as well as IDs from medical subsystems and insurance
+      numbers.
+    background_color: "#B2FF59"
+    border_color: "#76FF03"
+    fine_grained:
+    - id: ID
+      description: >-
+        The ID (Identifier) category includes all references to identifiers
+        using a sequence of characters, including numbers. This includes patient
+        IDs and case IDs, as well as IDs from medical subsystems and insurance
+        numbers.
+  - id: LOCATION
+    description: >-
+      The LOCATION category encompasses all types of address information.
+    background_color: "#42A5F5"
+    border_color: "#2196F3"
+    fine_grained:
+    - id: LOCATION_CITY
+      description: City names, e.g., [Berlin]
+    - id: LOCATION_COUNTRY
+      description: Name of countries, e.g., Urlaub in [Frankreich]
+    - id: LOCATION_STATE
+      description: Name of states or federal states, e.g., [Bayern]
+    - id: LOCATION_STREET
+      description: Street names and house numbers, e.g., [Musterstraße 1]
+    - id: LOCATION_ZIP
+      description: Postal codes, e.g., [10115], [D-98765]
+  - id: NAME
+    description: >-
+      The NAME category includes all types of personal names. First and last
+      names in a range are annotated together. Titles are treated separately.
+    background_color: "#EEFF41"
+    border_color: "#C6FF00"
+    fine_grained:
+    - id: NAME_DOCTOR
+      description: Medical personnel, Prof. Dr. [Moritz Schmidt]
+    - id: NAME_EXT
+      description: >-
+        Mention of persons related to authorities, insurance companies, etc.
+    - id: NAME_PATIENT
+      description: "Name of the patient, e.g., Patientin: [Mustermann, Maxima]"
+    - id: NAME_RELATIVE
+      description: | 
+        Name of relatives, e.g., Die Tochter des Pat. Frau [B. Schulze]
+    - id: NAME_TITLE
+      description: Title designations, e.g., [Prof. Dr.] Moritz Schmidt
+    - id: NAME_USERNAME
+      description: "User names, e.g., Unser Zeichen: [a.jd]"
+  - id: ORGANIZATION
+    description: >-
+      This category contains names of institutions, specific
+      (sub-)organizations or institutions, and organizational units.
+    background_color: "#B388FF"
+    border_color: "#7C4DFF"
+    fine_grained:
+    - id: LOCATION_HOSPITAL
+      description: >-
+        Name of a facility with clinical relevance (place where one can be
+        treated)
+    - id: LOCATION_ORGANIZATION
+      description: >-
+        Names of organizations without clinical relevance
+        (e.g., insurance companies), e.g., [BZH Heidelberg], ... arbeitet an
+        [Universität Leipzig]
+  - id: PROFESSION
+    description: >-
+      Descriptions of occupations related to the patient, without mentioning
+      their status (e.g., unemployed, retired, part-time), e.g., [Verkäuferin],
+      [Pfleger]
+    background_color: "#FFB74D"
+    border_color: "#FFA726"
+    fine_grained:
+    - id: PROFESSION
+      description: >-
+        Descriptions of occupations related to the patient, without mentioning
+        their status (e.g., unemployed, retired, part-time), e.g.,
+        [Verkäuferin], [Pfleger]
+  sample_texts:
+  - |
+    Hals-Nasen-Ohren-Klinik
+    Klinikdirektor: Univ. Prof. Dr. mult. Pinocchio Cwerg-Nase
+    A-2236 Opfing, Heldenplatz 16, Tel.: 0816/333-13283, Fax: 0816/333-13284
+
+    Herrn
+    Dr. Pierre JOUBERT Innsbrucker Landstraße 22a
+    A-2236 Opfing
+
+
+    Zur Vorlage bei Ihrer/Ihrem Ärztin/Arzt
+
+
+
+    Dr. Pierre JOUBERT
+    Geboren am: 03.03.1973
+    Innsbrucker Landstraße 22a
+    A-2236 Opfing
+
+    Allgemeine Ambulanz
+
+    Ambulant am 08.07.2026
+    Fallnummer:	A-202344102
+
+    Versicherung: BVA
+
+
+    Befund
+
+    angelegt am 08.07.2026 gedruckt am 08.07.2026
+
+
+    Anamnese: Seit 10 Tagen grippaler Infekt ohne Fieber, seit 3 Tagen zunehmende stechende
+    Kopfschmerzen und Druckgefühl frontal, begleitend Husten, Niesanfälle, Medikation: seit
+    10 Tagen Nasevin NT, Paracetmol bei Bedarf Allergien: Pollen
+
+    Rechtes Ohr: kein Tragusdruckschmerz, kein Mastoisklopfschmerz, Gehörgang bland, Tf unauff., Vasalva pos.
+
+    linkes Ohr: 
+    kein Tragusdruckschmerz, kein Mastoisklopfschmerz, Gehörgang bland, Tf unauff., Vassalva pos.
+
+    Nase: leicht SH Rötung 
+    
+    Nasenrachen: leicht gerötet 
+
+    Mundrachen: mäsig gerötet
+
+    Kehlkopf: soweit bei Würgereiz einsahbar unauffällig
+
+    Sonstiges: Lnn submandibulär, nuchal und pariaurikulär unaufällig
+
+
+    Diagnose(n)
+    Sinusitis frontalis
+
+    Empfohlene  Untersuchung{en)
+    Empf. täglich HE u. lnhal. in unserer Ambulanz  sowie Vibramycin 100 heute 2x1, dann  weiter 1x1, Otrivin Tropfen  3xtgl. in die  Nase, Antiphlogistika bei Bedarf. Eine Ko.  wurde  für  morgen  für neuerlich HE u.  Inhalation vereinbart.
+  - |
+    Spital der barmherzigen Schwestern St. Johann am Bergle
+    Klinik für Chirurgie
+    Klinikvorstand: o.Univ. Prof. Dr. Hans Wurst
+
+    A-3336 St. Johann am Bergle
+    Sonnblick 32,
+    Telefon +43 (453) 14-DW, Fax +43 (453) 14-592-12098
+
+
+    Ambulanz für Endoskopie
+    Leitender Oberarzt: Dr. Jonathan Darmstädter
+
+
+    Zur Vorlage bei Ihrer/Ihrem Ärztin/Arzt
+
+
+
+    Isabella Meulengracht
+    Hauptstraße 3a 
+    A-3337 St. Anna im Tale
+
+
+    geboren am:  31.12.1999
+    Fallzahl: 	103354008
+    SV Nr.: 	4445311299
+
+
+
+    Endoskopischer Befund vom 29.01.2039
+    Koloskopie
+
+
+    Prämedikation: 23ml Propofel 1%. O2-Gabe und Monitoring (Herzfrequenz und Sättigung). 
+
+    Untersuchungsmodus: Es handelt sich um eine elektive Untersuchung.
+
+    Indikationen: VU-Koloskopie.
+
+    Colon: Vom rektosigmoidalen Übergang bis re Flexur finden sich mehrere Divertikel, allesamt bland und reizlos, jedoch viele mit Stuhl impaktiert, wie auch der gesamte Kolonrahmen immer wieder voll wandhaftendem Stuhl sich präsentiert, sodaß die Beurteilbarkeit sehr eingeschränkt ist.
+    Bei 60 cm ab ano findet sich ein makr. JNET Typ I, welcher mit der Radial Jaw Zange abgetragen wird und die Abtragungsstelle mit einem Hämeclip gesichert wird. Ab der rechten Flexur bis Coecalpol keine Beurteilbarkeit gegeben. Beim Zurückziehen kommen Hämorrhoiden 1° zur Darstellung.
+
+    Diagnosen - Colon: Hämorrhodien 1°, Divertikulose, Dickdarmpolyp bei 55 cm ab ano.
+
+    Probeexzision: Glas 1: 55 cm ab ano, Polyp, Adenom, CA? 
+
+    Kontrollen: Wiedervorstellung abhängig vom histologischen Befund.
+
+    Therapie-Empfehlung: Ausreichend Flüssigkeitszufuhr bis zu 1,5 Ud, zur Stuhlsorge bei Bedarf Lävolac 3x1/EL oder Molaxole, oder Flohsamen ins Müsli. Ernährungsbroschüre wird mitgegeben.
+
+    Histologie: Histologie offen.
+  - |
+    Laurenz Prächtel geb. 10.02.1974,
+
+    Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,
+    wir berichten Ihnen nachfolgend über o.g. Patienten, der sich am 31.07.2022 in unserer stationären 
+    Behandlung befand.
+
+    Diagnosen: 
+    1. St.p. laparoskopischer Cholezystektomie 2018 bei Cholezystolithiasis
+        - Postoperative benigne Choledochusstenose 	  
+         - Z.n. endoskopischer Papillotomie und Einlage einer transpapillären Gallengangsendoprothese (11,5 F/12 cm, Typ Tannenbaum) 08/20
+              Seither regelmäßiger Wechsel alle 3 Monate, zuletzt 12/21, dabei Einlage einer Endoprothese (Bougierung)
+             Aktuell: Prothesenwechsel 
+    2. HP-negative Antrumgastritis 9/21
+    3. Z.n. Prostatitis
+    4. Mitralinsuffizienz I. Grades				 
+    5. Z. n. Muskelfaszikulationen unklarer Genese 12/19
+       - Ausschluss einer funktionell wirksamen Schilddrüsenerkrankung
+       - TSH leicht supprimiert: 3/19
+
+    Verlauf: Herr Prächtel wurde elektiv zum Drainagewechsel aufgenommen. Dieser wurde ohne 
+    Komplikationen unter Antibiotikaschutz bei MINS durchgeführt. Das Labor war bereits 
+    freundlicherweise von Ihnen mitgegeben worden. In der ERCP zeigte sich ein guter Dehnungseffekt 
+    der benignen Choledochustenose, sodass bei dem nächsten Wechsel ggfs. auf die Einlage der 
+    Drainagen verzichtet werden kann. Aktuell wurden erneut 2 Drainagen vom Typ Tannenbaum 
+    eingelegt. Bei unkomplizierten Verlauf empfehlen wir eine Wiedervorstellung des P. in ca. 4 Monaten. 
+    Wir bitten die med. Therapie mit Ursofalk fortzuführen.
+    Bei Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung. 
+
+    Mit freundlichen Grüßen
+
+    Janina Parkinson MD Msc		Dr.med. Veronica Kugic		Prof. Dr.Dr. Konstantin Lauterbach
+    Stationsärztin			                Oberärztin			                        Chefarzt
+  supported_models_root_dir:
+  - models
+  - grascco
+  supported_models:
+  - model_id: xlm-roberta-large
+    model_name: facebookai/xlm-roberta-large
+    model_description: >-
+      The XLM-RoBERTa large model fine-tuned on 37 documents (train-split of
+      63 documents) of GraSCCo corpus for Named Entity Recognition (NER)
+      downstream task.
+    model_links:
+    - https://github.com/calgo-lab/redakt-grascco
+    model_type: NER
+    model_type_description: Named Entity Recognition
+    model_loading_strategy: local_disk_storage
+    model_directory_name:
+    - xlm-roberta-large
+    model_version: '1.0'
+    model_impl: SequenceTagger
+    model_system_requirements:
+    - flair==0.15.1
+  - model_id: codealltag-xlm-roberta-large
+    model_name: calgo-lab/codealltag-xlm-roberta-large
+    model_description: >-
+      The checkpoint of already fine-tuned XLM-RoBERTa large model on
+      CodE Alltag corpus is further fine-tuned on 37 documents (train-split of
+      63 documents) of GraSCCo corpus for Named Entity Recognition (NER)
+      downstream task with classification head adapted to GraSCCo entity set
+      labels.
+    model_links:
+    - https://github.com/calgo-lab/redakt-grascco
+    model_type: NER
+    model_type_description: Named Entity Recognition
+    model_loading_strategy: local_disk_storage
+    model_directory_name:
+    - calgo-lab
+    - codealltag-xlm-roberta-large
+    model_version: '1.0'
+    model_impl: SequenceTagger
+    model_system_requirements:
+    - flair==0.15.1

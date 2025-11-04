@@ -1,0 +1,8 @@
+fastapi==0.116.1
+flair==0.15.1
+loguru==0.7.3
+somajo==2.4.3
+streamlit==1.48.1
+transformers==4.55.3
+uvicorn==0.35.0
+PyYAML==6.0.2
