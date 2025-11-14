@@ -1,30 +1,92 @@
+from typing import Any, Dict, List, Union
+
 from fastapi import Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError as PydanticValidationError
-from src.core.logging import get_logger, log_exception
-from src.domain.exceptions import RedaktoException
-from typing import Any, Dict, List, Union
+
+from core.exceptions import (
+    ConfigurationException,
+    PredictionException,
+    ResourceNotFoundException
+)
+from core.logging import get_logger, log_exception
+
 
 logger = get_logger(__name__)
 
-async def redakto_exception_handler(request: Request, ex: RedaktoException) -> JSONResponse:
+async def resource_not_found_exception_handler(request: Request, 
+                                               ex: ResourceNotFoundException) -> JSONResponse:
     """
-    Handle custom Redakto exceptions.
+    Handle ResourceNotFoundException.
     
     :param request: The incoming request
-    :param ex: The Redakto exception
+    :param ex: The ResourceNotFoundException
     :return: JSON response with error details
     """
     logger.error(
         f"path: {request.url.path} | "
         f"method: {request.method} | "
-        f"redakto_exception: {ex.message} | "
+        f"message: {ex.message} | "
         f"details: {ex.details}"
     )
     
     return JSONResponse(
-        status_code=ex.status_code,
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={
+            "path": request.url.path,
+            "method": request.method,
+            "error": ex.__class__.__name__,
+            "message": ex.message,
+            "details": ex.details
+        }
+    )
+
+async def configuration_exception_handler(request: Request, 
+                                          ex: ConfigurationException) -> JSONResponse:
+    """
+    Handle ConfigurationException.
+    
+    :param request: The incoming request
+    :param ex: The ConfigurationException
+    :return: JSON response with error details
+    """
+    logger.error(
+        f"path: {request.url.path} | "
+        f"method: {request.method} | "
+        f"message: {ex.message} | "
+        f"details: {ex.details}"
+    )
+    
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "path": request.url.path,
+            "method": request.method,
+            "error": ex.__class__.__name__,
+            "message": ex.message,
+            "details": ex.details
+        }
+    )
+
+async def prediction_exception_handler(request: Request, 
+                                       ex: PredictionException) -> JSONResponse:
+    """
+    Handle PredictionException.
+    
+    :param request: The incoming request
+    :param ex: The PredictionException
+    :return: JSON response with error details
+    """
+    logger.error(
+        f"path: {request.url.path} | "
+        f"method: {request.method} | "
+        f"message: {ex.message} | "
+        f"details: {ex.details}"
+    )
+    
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
             "path": request.url.path,
             "method": request.method,
@@ -65,7 +127,10 @@ def _format_validation_errors(errors: List[Dict[str, Any]]) -> List[Dict[str, An
     
     return formatted_errors
 
-async def validation_exception_handler(request: Request, ex: Union[RequestValidationError, PydanticValidationError]) -> JSONResponse:
+async def validation_exception_handler(request: Request, 
+                                       ex: Union[
+                                           RequestValidationError, 
+                                           PydanticValidationError]) -> JSONResponse:
     """
     Handle Pydantic validation errors.
     
@@ -75,12 +140,13 @@ async def validation_exception_handler(request: Request, ex: Union[RequestValida
     """
     errors = ex.errors() if hasattr(ex, 'errors') else [{"msg": str(ex)}]
     formatted_errors = _format_validation_errors(errors)
+    details = {"validation_errors": formatted_errors}
     
     logger.error(
         f"path: {request.url.path} | "
         f"method: {request.method} | "
-        f"validation_exception: invalid_request | "
-        f"details: {formatted_errors}"
+        f"message: Request validation failed | "
+        f"details: {details}"
     )
     
     return JSONResponse(
@@ -89,8 +155,8 @@ async def validation_exception_handler(request: Request, ex: Union[RequestValida
             "path": request.url.path,
             "method": request.method,
             "error": ex.__class__.__name__,
-            "message": "invalid_request",
-            "details": formatted_errors
+            "message": "Request validation failed",
+            "details": details
         }
     )
 
@@ -103,8 +169,9 @@ async def generic_exception_handler(request: Request, ex: Exception) -> JSONResp
     :return: JSON response with error details
     """
     log_exception(
-        f"Unhandled exception on {request.method} {request.url.path}",
-        exception_type=ex.__class__.__name__
+        f"path: {request.url.path} | "
+        f"method: {request.method} | "
+        f"message: {str(ex)}"
     )
 
     return JSONResponse(
@@ -112,7 +179,7 @@ async def generic_exception_handler(request: Request, ex: Exception) -> JSONResp
         content={
             "path": request.url.path,
             "method": request.method,
-            "error": "internal_server_error",
+            "error": ex.__class__.__name__,
             "message": "An unexpected error occurred."
         }
     )

@@ -1,6 +1,7 @@
-from loguru import logger
 from pathlib import Path
 from typing import Optional
+
+from loguru import logger
 
 import sys
 
@@ -10,22 +11,23 @@ LOGS_DIR.mkdir(exist_ok=True)
 
 _is_configured = False
 
-
 def configure_logging(log_level: str = "INFO",
                       json_format: bool = False,
-                      log_to_file: bool = True) -> None:
+                      log_to_file: bool = False,
+                      file_prefix: str = "log") -> None:
     """
     Configure application-wide logging with loguru.
     
     :param log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
     :param log_to_file: Whether to log to files
     :param json_format: Whether to use JSON format (for production)
+    :param file_prefix: Prefix for log files
     :return: None
     """
     global _is_configured
     
     if _is_configured:
-        logger.warning("Logging already configured, skipping")
+        logger.info("Logging setup is already configured, skipping ...")
         return
     
     logger.remove()
@@ -56,7 +58,7 @@ def configure_logging(log_level: str = "INFO",
     
     if log_to_file:
         if json_format:
-            logger.add(LOGS_DIR / "redakto_{time:YYYY-MM-DD}.json",
+            logger.add(LOGS_DIR / f"{file_prefix}_{{time:YYYY-MM-DD}}.json",
                        rotation="00:00",
                        retention="30 days",
                        level=log_level,
@@ -65,7 +67,7 @@ def configure_logging(log_level: str = "INFO",
                        serialize=True,
                        enqueue=True)
         else:
-            logger.add(LOGS_DIR / "redakto_{time:YYYY-MM-DD}.log",
+            logger.add(LOGS_DIR / f"{file_prefix}_{{time:YYYY-MM-DD}}.log",
                    rotation="00:00",
                    retention="30 days",
                    level=log_level,
@@ -77,8 +79,8 @@ def configure_logging(log_level: str = "INFO",
     
     _is_configured = True
 
-    logger.success(
-        "setup_logging_done",
+    logger.info(
+        "Logging setup is completed",
         level=log_level,
         to_file=log_to_file,
         json_format=json_format
@@ -94,7 +96,6 @@ def get_logger(name: Optional[str] = None):
     if name:
         return logger.bind(module=name)
     return logger
-
 
 def log_exception(message: str, **kwargs):
     """

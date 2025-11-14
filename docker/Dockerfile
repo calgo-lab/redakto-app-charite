@@ -18,7 +18,7 @@ COPY models/ /app/models/
 
 COPY app.py streamlit_app.py favicon.ico logo.png calgo_lab_logo.png ./
 
-COPY config/ /app/config/
+COPY configs/ /app/configs/
 
 COPY src/ /app/src/
 

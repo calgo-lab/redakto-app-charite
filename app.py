@@ -1,25 +1,50 @@
+from pathlib import Path
+import sys
+sys.path.append(str(Path(__file__).resolve().parent / "src"))
+
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError as PydanticValidationError
-from src.api.routes import app_info_routes
-from src.api.routes import predict_routes
-from src.application.services.app_info_service import AppInfoService
-from src.application.services.prediction_service import PredictionService
-from src.core.logging import configure_logging, get_logger, log_exception
-from src.core.exceptions_handler import generic_exception_handler, redakto_exception_handler, validation_exception_handler
-from src.domain.exceptions import RedaktoException
-from src.infrastructure.services.model_service_impl import ModelServiceImpl
+
+from api.routes import app_info_routes, predict_routes
+from application.services.app_info_service import AppInfoService
+from application.services.prediction_service import PredictionService
+from config_handlers.app_info_config_handler import AppInfoConfigHandler
+from core.exceptions import (
+    ConfigurationException,
+    PredictionException,
+    ResourceNotFoundException
+)
+from core.exceptions_handler import (
+    configuration_exception_handler,
+    generic_exception_handler,
+    prediction_exception_handler,
+    resource_not_found_exception_handler, 
+    validation_exception_handler
+)
+from core.logging import (
+    configure_logging,
+    get_logger,
+    log_exception
+)
+from infrastructure.services.model_service_impl import ModelServiceImpl
 
 import subprocess
 import sys
 import threading
 import time
+
 import uvicorn
 
-log_level: str = "INFO"
-json_format: bool = False
-configure_logging(log_level, json_format=json_format)
+
+app_info_config_handler = AppInfoConfigHandler.load_from_file()
+
+configure_logging(log_level=app_info_config_handler.app_log_level,
+                  json_format=False,
+                  log_to_file=True,
+                  file_prefix=app_info_config_handler.app_name.lower().replace(" ", "_"))
 
 logger = get_logger(__name__)
 
@@ -27,6 +52,10 @@ _services_ready: bool = False
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """
+    Lifespan context manager for FastAPI application.
+    This function sets up and tears down services required by the FastAPI app.
+    """
     global _services_ready
     try:
         logger.info(f"Setting up FastAPI services ...")
@@ -48,25 +77,29 @@ async def lifespan(app: FastAPI):
         logger.info(f"Shutting down FastAPI services ...")
 
 app = FastAPI(lifespan=lifespan,
-              title="Redakto API",
-              description="API for the Redakto application",
-              version="charite-1.0.0",
+              title=f"{app_info_config_handler.app_name} API",
+              description=f"API for the {app_info_config_handler.app_name} application",
+              version=app_info_config_handler.app_version,
               docs_url="/api/docs",
               redoc_url="/api/redoc",
               openapi_url="/api/openapi.json")
 
-app.add_exception_handler(RedaktoException, redakto_exception_handler)
-app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(ConfigurationException, configuration_exception_handler)
+app.add_exception_handler(PredictionException, prediction_exception_handler)
 app.add_exception_handler(PydanticValidationError, validation_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(ResourceNotFoundException, resource_not_found_exception_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
 
 app.include_router(app_info_routes.router)
 app.include_router(predict_routes.router)
 
-def run_streamlit():
+def run_streamlit() -> None:
     """
     Run the Streamlit application in a separate thread.
     This function starts the Streamlit app using a subprocess call.
+
+    :return: None
     """
     max_wait = 10
     waited = 0
@@ -94,7 +127,7 @@ threading.Thread(target=run_streamlit, daemon=True).start()
 
 if __name__ == "__main__":
     try:
-        logger.info("Starting uvicorn server for Redakto FastAPI ...")
+        logger.info(f"Starting uvicorn server for {app_info_config_handler.app_name} FastAPI services ...")
         uvicorn.run(app, host="0.0.0.0", port=8000, access_log=False)
     except Exception as e:
         log_exception(f"Failed to start uvicorn server: {e}")

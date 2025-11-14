@@ -1,32 +1,13 @@
 ---
-app_name: Redakto
-app_version: charite-1.0.0
-backend_url: http://localhost:8000
-entity_set_info: |  
-  An entity set represents a collection of entity labels derived from a specific corpus used to fine-tune Named Entity Recognition (NER) models. Each entity set is tailored to the domain and characteristics of its source corpus, reflecting the particular types of information that are relevant within that context.
-  
-  Different corpora are constructed from texts originating from distinct domains, resulting in entity sets with varying granularity and focus. For example, the CodE Alltag entity set is designed for email communications and includes labels such as EMAIL, PHONE, and URL under the CONTACT category. In contrast, the GraSCCo_PHI entity set is specialized for clinical documentation and features domain-specific labels like NAME_DOCTOR, NAME_PATIENT, LOCATION_HOSPITAL, and PROFESSION.
-  
-  This domain-specific approach ensures that the NER models can accurately identify and classify entities according to the unique requirements of each text type and application scenario.
-label_type_info: |  
-  Label Type controls how the entities should be labeled.
-  
-  Coarse-grained labels represent broader categories, while fine-grained labels provide more specific classifications within those categories. For instance, the CONTACT label type may include coarse-grained labels like EMAIL, PHONE, and URL, each representing a specific type of contact information.
-
-  This hierarchical structure enhances the flexibility for different use-case scenarios.
-supported_models_info: |  
-  Supported Models are pre-trained NER models that have been fine-tuned on specific corpora corresponding to the selected entity set. These models are designed to recognize and classify entities based on the labels defined in the entity set.
-
-  Each supported model is associated with a particular architecture (e.g., XLM-RoBERTa large) and has been trained using a subset of the corpus data.
-
-  Users can select from the available supported models to apply NER to their input texts, leveraging the specialized knowledge embedded in these models for effective entity recognition.
 entity_set_models:
 - entity_set_id: codealltag
   corpus_name: CodE Alltag
-  corpus_doctype: Email
+  corpus_doctypes:
+  - Email
   corpus_description: CodE Alltag is a German-language email corpus
   corpus_version: '2022'
-  corpus_language: German
+  corpus_languages:
+  - German
   corpus_links:
   - https://github.com/codealltag
   entity_set_labels:
@@ -145,12 +126,14 @@ entity_set_models:
     - flair==0.15.1
 - entity_set_id: grascco
   corpus_name: GraSCCo_PHI
-  corpus_doctype: Clinical
+  corpus_doctypes:
+  - Clinical
   corpus_description: >-
     GraSCCo - is a collection of artificially generated German-language
     clinical summaries
   corpus_version: '2024'
-  corpus_language: German
+  corpus_languages:
+  - German
   corpus_links:
   - https://zenodo.org/records/11502329
   - https://ebooks.iospress.nl/doi/10.3233/SHTI240853

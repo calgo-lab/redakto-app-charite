@@ -1,7 +1,9 @@
-from pandas import DataFrame, Series
 from typing import Any, Dict, List, Set, Tuple
 
+from pandas import DataFrame, Series
+
 import re
+
 
 class CoarseLabelUtils:
     """
@@ -36,7 +38,6 @@ class CoarseLabelUtils:
         :param max_gap: maximum number of characters allowed between entities
         :return: True if entities are consecutive with allowed separators, False otherwise
         """
-        
         if next_entity['Start'] < current_entity['End']:
             return False
         if next_entity['Start'] == current_entity['End']:
@@ -64,7 +65,6 @@ class CoarseLabelUtils:
         :param merge_consecutive: whether to merge consecutive entities of the same coarse type
         :return: Tuple of (final DataFrame, tracking dictionary)
         """
-
         if annotation_df.empty:
             return annotation_df, dict()
 
@@ -167,7 +167,6 @@ class CoarseLabelUtils:
         :param annotation_df: DataFrame with columns ['Token_ID', 'Label', 'Start', 'End', 'Token']
         :return: DataFrame with adjusted 'DATE' entities
         """
-
         for _, row in annotation_df.iterrows():
             if row['Label'] == 'DATE':
                 date_pattern = r'^\d{1,2}\.\d{1,2}\.\d{2,4}\.$'
@@ -186,7 +185,6 @@ class CoarseLabelUtils:
         :param tracking_dict: Dictionary containing tracking information for entities
         :return: None
         """
-        
         print("\n" + "="*80)
         print("ENTITY TRACKING INFORMATION")
         print("="*80)

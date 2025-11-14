@@ -1,10 +1,13 @@
-from pydantic import BaseModel, Field, field_validator
 from typing import List
+
+from pydantic import BaseModel, Field, field_validator
+
 
 class DetectEntitiesRequest(BaseModel):
     """
     Request schema for detecting entities in texts.
     """
+
     entity_set_id: str = Field(
         ...,
         description="The entity set identifier (e.g., 'codealltag', 'grascco')",
@@ -34,7 +37,7 @@ class DetectEntitiesRequest(BaseModel):
         empty_indices = [i for i, text in enumerate(v) if not text.strip()]
         if empty_indices:
             raise ValueError(
-                f'input_texts cannot contain empty strings at indices: {empty_indices}'
+                f'input_texts cannot contain empty strings or whitespace-only strings at indices: {empty_indices}'
             )
         return v
     
@@ -53,6 +56,10 @@ class DetectEntitiesRequest(BaseModel):
         return v.strip()
 
 class EntityItem(BaseModel):
+    """
+    Response model for a detected entity item.
+    """
+    
     token_id: str = Field(..., alias='Token_ID')
     label: str = Field(..., alias='Label')
     start: int = Field(..., alias='Start')
@@ -64,4 +71,8 @@ class EntityItem(BaseModel):
         validate_by_name = True
 
 class DetectEntitiesResponse(BaseModel):
+    """
+    Response model for detected entities in texts.
+    """
+    
     output: List[List[EntityItem]]

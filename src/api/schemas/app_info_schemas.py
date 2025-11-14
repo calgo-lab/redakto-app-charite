@@ -1,10 +1,13 @@
-from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
+
+from pydantic import BaseModel, Field, field_validator
+
 
 class EntitySetQueryParams(BaseModel):
     """
     Query parameter for entity set ID.
     """
+
     entity_set_id: str = Field(
         ...,
         description="The entity set identifier (e.g., 'codealltag', 'grascco')",
@@ -29,6 +32,7 @@ class ModelQueryParams(BaseModel):
     """
     Query parameters for model operations.
     """
+
     entity_set_id: str = Field(
         ...,
         description="The entity set identifier (e.g., 'codealltag', 'grascco')",
@@ -58,6 +62,7 @@ class FineGrainedLabelResponse(BaseModel):
     """
     Response model for fine-grained labels.
     """
+
     id: str = Field(..., description="ID of the fine-grained label")
     description: str = Field(..., description="Description of the fine-grained label")
 
@@ -65,6 +70,7 @@ class EntitySetLabelResponse(BaseModel):
     """
     Response model for entity set labels.
     """
+
     id: str = Field(..., description="ID of the coarse-grained label")
     description: str = Field(..., description="Description of the coarse-grained label")
     fine_grained: List[FineGrainedLabelResponse] = Field(default_factory=list, description="List of fine-grained labels")
@@ -73,6 +79,7 @@ class SupportedModelResponse(BaseModel):
     """
     Response model for supported models.
     """
+
     model_id: str = Field(..., description="Unique identifier for the model")
     model_name: str = Field(..., description="Display name of the model")
 
@@ -80,23 +87,26 @@ class SupportedModelDetailsResponse(BaseModel):
     """
     Response model for supported model details.
     """
+
     model_id: str = Field(..., description="Unique identifier for the model")
     model_name: str = Field(..., description="Display name of the model")
     model_description: str = Field(..., description="Description of the model")
+    model_links: List[str] = Field(default_factory=list, description="List of links related to the model")
     model_type: Optional[str] = Field(None, description="Type of the model (e.g., 'NER', 'NER-PG')")
     model_type_description: Optional[str] = Field(None, description="Description of the model type")
-    model_links: List[str] = Field(default_factory=list, description="List of links related to the model")
     model_version: Optional[str] = Field(None, description="Version of the model")
 
 class EntitySetDetailsResponse(BaseModel):
     """
     Response model for entity set details.
     """
+    
     entity_set_id: str = Field(..., description="Unique identifier for the entity set")
     corpus_name: Optional[str] = Field(None, description="Name of the corpus")
-    corpus_doctype: Optional[str] = Field(None, description="Document type of the corpus")
+    corpus_doctypes: List[str] = Field(default_factory=list, description="Document types of the corpus")
     corpus_description: Optional[str] = Field(None, description="Description of the corpus")
     corpus_version: Optional[str] = Field(None, description="Version of the corpus")
+    corpus_languages: List[str] = Field(default_factory=list, description="List of languages of the documents in the corpus")
     corpus_links: List[str] = Field(default_factory=list, description="List of links related to the corpus")
     entity_set_labels: List[EntitySetLabelResponse] = Field(default_factory=list, description="List of entity labels")
     supported_models: List[SupportedModelResponse] = Field(default_factory=list, description="List of supported models")

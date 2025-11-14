@@ -1,79 +1,114 @@
 from pathlib import Path
-from src.utils.app_info import AppInfo, EntitySetModel, SupportedModel
+import sys
+sys.path.append(str(Path(__file__).resolve().parent / "src"))
+
+from pathlib import Path
 from typing import List, Tuple
+
+from config_handlers.app_info_config_handler import AppInfoConfigHandler
+from config_handlers.entity_set_models_config_handler import (
+    EntitySetModel,
+    EntitySetModelsConfigHandler,
+    SupportedModel
+)
 
 import base64
 import html
 import random
+
 import requests
 import streamlit as st
 
 
-st.set_page_config(page_title="Redakto",
-                   page_icon="favicon.ico")
+@st.cache_resource
+def _load_app_info_config() -> AppInfoConfigHandler:
+    """
+    Load application information configuration from the AppInfoConfigHandler.
+
+    :return: An instance of AppInfoConfigHandler containing application information configuration.
+    """
+    return AppInfoConfigHandler.load_from_file()
 
 @st.cache_resource
-def _load_app_info() -> AppInfo:
+def _load_entity_set_models_config() -> EntitySetModelsConfigHandler:
     """
-    Load application information from the AppInfo utility.
+    Load Entity Set Models configuration from the EntitySetModelsConfigHandler.
 
-    :return: An instance of AppInfo containing application configuration.
+    :return: An instance of EntitySetModelsConfigHandler containing entity set models configuration.
     """
-    return AppInfo.load()
+    return EntitySetModelsConfigHandler.load_from_file()
+
+def _get_app_name() -> str:
+    """
+    Get the application name from the application information configuration.
+
+    :return: The application name as a string.
+    """
+    app_info_config_handler = _load_app_info_config()
+    return app_info_config_handler.app_name
 
 def _get_app_version() -> str:
     """
-    Get the application version from the application information.
+    Get the application version from the application information configuration.
 
     :return: The application version as a string.
     """
-    app_info = _load_app_info()
-    return app_info.app_version
+    app_info_config_handler = _load_app_info_config()
+    return app_info_config_handler.app_version
+
+def _get_app_short_description() -> str:
+    """
+    Get the application short description from the application information configuration.
+
+    :return: The application short description as a string.
+    """
+    app_info_config_handler = _load_app_info_config()
+    return app_info_config_handler.app_short_description
 
 def _get_backend_url() -> str:
     """
-    Get the backend API URL from the application information.
+    Get the backend API URL from the application information configuration.
 
     :return: The backend API URL as a string.
     """
-    app_info = _load_app_info()
-    return app_info.backend_url
+    app_info_config_handler = _load_app_info_config()
+    return app_info_config_handler.backend_url
 
 def _get_entity_set_info() -> str:
     """
-    Get the entity set information from the application information.
+    Get the entity set information from the application information configuration.
 
     :return: The entity set information as a string.
     """
-    app_info = _load_app_info()
-    return app_info.entity_set_info
+    app_info_config_handler = _load_app_info_config()
+    return app_info_config_handler.entity_set_info
 
 def _get_label_type_info() -> str:
     """
-    Get the label type information from the application information.
+    Get the label type information from the application information configuration.
 
     :return: The label type information as a string.
     """
-    app_info = _load_app_info()
-    return app_info.label_type_info
+    app_info_config_handler = _load_app_info_config()
+    return app_info_config_handler.label_type_info
 
 def _get_supported_models_info() -> str:
     """
-    Get the supported models information from the application information.
+    Get the supported models information from the application information configuration.
 
     :return: The supported models information as a string.
     """
-    app_info = _load_app_info()
-    return app_info.supported_models_info
+    app_info_config_handler = _load_app_info_config()
+    return app_info_config_handler.supported_models_info
 
 def _get_entity_sets() -> List[EntitySetModel]:
     """
-    Get available entity sets from the application information.
+    Get available entity sets from the entity set models configuration.
 
     :return: A list of entity sets.
     """
-    app_info = _load_app_info()
-    return app_info.entity_sets
+    entity_set_models_config_handler = _load_entity_set_models_config()
+    return entity_set_models_config_handler.entity_sets
 
 def _get_entity_set_ids() -> List[str]:
     """
@@ -104,7 +139,6 @@ def _get_supported_model_ids(entity_set_id: str) -> List[str]:
     :param entity_set_id: The ID of the entity set.
     :return: A list of supported model IDs.
     """
-
     entity_sets = _get_entity_sets()
     for es in entity_sets:
         if es.entity_set_id == entity_set_id:
@@ -256,9 +290,9 @@ def _get_markup_for_site_top_section() -> str:
                     <img src='data:image/png;base64,{_get_base64_encoded_image(Path("logo.png"))}' width='80' style='display: block;'>
                 </div>
                 <div style='display: flex; flex-direction: column; justify-content: center;'>
-                    <div style='margin: 0; font-size: 1.9rem; font-weight: bold; line-height: 1.2;'>Redakto</div>
+                    <div style='margin: 0; font-size: 1.9rem; font-weight: bold; line-height: 1.2;'>{_get_app_name()}</div>
                     <p style='font-size: 0.75rem; margin: 0; color: #666; line-height: 1.2;'>
-                        German Text Redactor
+                        {_get_app_short_description()}
                     </p>
                     <p style='font-size: 0.75rem; margin: 0; color: #666; line-height: 1.2;'>
                         Version: {_get_app_version()}
@@ -309,7 +343,7 @@ def _format_entity_set_display_name(entity_set_id: str) -> str:
     """
     es = _get_entity_set_details(entity_set_id)
     if es:
-        return f"{es.corpus_doctype} / {es.corpus_name}"
+        return f"{("+").join(es.corpus_doctypes)} / {es.corpus_name}"
     return entity_set_id
 
 def _update_entity_set_id() -> None:
@@ -470,7 +504,6 @@ def _process_text() -> None:
 
     :return: None
     """
-
     input_text_value = st.session_state.get("input_text_area", "").strip()
 
     if not input_text_value:
@@ -557,8 +590,11 @@ def main() -> None:
 
     :return: None
     """
+    _load_app_info_config()
+    _load_entity_set_models_config()
 
-    _load_app_info()
+    st.set_page_config(page_title=_get_app_name(), page_icon="favicon.ico")
+    
     _set_defaults()
 
     st.markdown(_get_base_css(), unsafe_allow_html=True)

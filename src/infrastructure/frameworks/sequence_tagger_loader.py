@@ -1,34 +1,49 @@
-from flair.models import SequenceTagger
 from pathlib import Path
-from src.infrastructure.frameworks.cached_model_loader import CachedModelLoader
+
+from flair.models import SequenceTagger
+
+from core.exceptions import ModelLoadException
+from core.logging import get_logger
+from infrastructure.frameworks.cached_model_loader import CachedModelLoader
 
 import flair
 
 
 class SequenceTaggerLoader(CachedModelLoader):
     """
-    Responsible for loading a Flair SequenceTagger model - given a model_path.
+    Responsible for loading a Flair SequenceTagger model - given a model name or path.
     """
+
     def __init__(self, 
                  model_name_or_path: str, 
+                 cache_root: Path, 
                  loading_strategy: str = "local_disk_storage"):
         """
+        Initialize the SequenceTaggerLoader with model name or path, cache root, and loading strategy.
+
         :param model_name_or_path: The path or name of the Flair model to load.
+        :param cache_root: The root directory for caching Flair models, embeddings, and other resources.
         :param loading_strategy: The strategy to use for loading the model (e.g., local_disk_storage).
         """
         super().__init__(model_name_or_path, loading_strategy)
-        self._cache_root: Path = Path("/app/flair_cache_root")
+        self.logger = get_logger(__name__)
+        self._cache_root: Path = cache_root
 
     def _load_model(self) -> SequenceTagger:
         """
         Load the Flair SequenceTagger model and return the model object.
+        
         :return: The loaded SequenceTagger model object.
         """
         flair.cache_root = self._cache_root
         try:
             if self.loading_strategy == "local_disk_storage":
-                return SequenceTagger.load(self.model_name_or_path / "model.pt")
-            else:
-                raise ValueError(f"Unsupported loading strategy: {self.loading_strategy} for model at {self.model_name_or_path}")
+                model_file_path: Path = Path(self.model_name_or_path) / "model.pt"
+                if not model_file_path.exists():
+                    raise FileNotFoundError(f"Model file not found at configured location: {str(model_file_path)}")
+                return SequenceTagger.load(model_file_path)
+            elif self.loading_strategy == "huggingface_hub":
+                return SequenceTagger.load(self.model_name_or_path)
         except Exception as e:
-            print(f"Failed to load Flair model for {self._model_name_or_path}: {e}")
+            self.logger.error(f"Failed to load Flair model for '{self.model_name_or_path}': {e}")
+            raise ModelLoadException(self.model_name_or_path)

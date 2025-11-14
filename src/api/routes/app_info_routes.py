@@ -1,19 +1,31 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from src.api.schemas.app_info_schemas import EntitySetDetailsResponse, EntitySetQueryParams, ModelQueryParams, SupportedModelDetailsResponse
-from src.application.services.app_info_service import AppInfoService
-from src.core.logging import get_logger, log_exception
-from src.domain.exceptions import EntitySetNotFoundError, ModelNotFoundError, RedaktoException
 from typing import List
 
-logger = get_logger(__name__)
+from fastapi import APIRouter, Depends, Request
+
+from api.schemas.app_info_schemas import (
+    EntitySetDetailsResponse,
+    EntitySetQueryParams,
+    ModelQueryParams,
+    SupportedModelDetailsResponse
+)
+from application.services.app_info_service import AppInfoService
+
 
 router = APIRouter(
     prefix="/api/app_info",
     tags=["App Information"],
-    responses={500: {"description": "Internal server error"}}
+    responses={
+        500: {"description": "Internal server error"}
+    }
 )
 
 def get_app_info_service(request: Request) -> AppInfoService:
+    """
+    Dependency to retrieve the AppInfoService instance from the application state.
+
+    :param request: FastAPI Request object
+    :return: AppInfoService instance
+    """
     return request.app.state.app_info_service
 
 @router.get(
@@ -22,7 +34,7 @@ def get_app_info_service(request: Request) -> AppInfoService:
     summary="Get all entity set IDs",
     description="Returns a list of all available entity set IDs configured in the application.",
     response_description="List of entity set identifiers",
-    operation_id="getEntitySetIds",
+    operation_id="GetEntitySetIds",
     responses={
         200: {"description": "Successfully retrieved entity set IDs"},
         500: {"description": "Internal server error during entity set IDs retrieval"}
@@ -34,15 +46,8 @@ def get_entity_set_ids(service: AppInfoService = Depends(get_app_info_service)) 
 
     :param service: AppInfoService instance
     :return: List of entity set IDs
-
-    Raises:
-        RedaktoException: For internal errors
     """
-    try:
-        return service.get_entity_set_ids()
-    except Exception as e:
-        log_exception(f"Failed to retrieve entity set IDs: {e}")
-        raise RedaktoException(message=str(e), status_code=500)
+    return service.get_entity_set_ids()
     
 @router.get(
     "/get_supported_model_ids",
@@ -50,7 +55,7 @@ def get_entity_set_ids(service: AppInfoService = Depends(get_app_info_service)) 
     summary="Get supported model IDs for an entity set",
     description="Returns a list of all supported model IDs for the specified entity set ID.",
     response_description="List of model identifiers for the given entity set ID",
-    operation_id="getSupportedModelIds",
+    operation_id="GetSupportedModelIds",
     responses={
         200: {"description": "Successfully retrieved supported model IDs"},
         404: {"description": "Entity set not found"},
@@ -66,18 +71,8 @@ def get_supported_model_ids(query: EntitySetQueryParams = Depends(),
     :param query: Query parameter containing the entity set ID, such as "codealltag" or "grascco"
     :param service: AppInfoService instance
     :return: List of supported model IDs for the specified entity set
-
-    Raises:
-        EntitySetNotFoundError: If the specified entity set does not exist
-        RedaktoException: For other internal errors
     """
-    try:
-        model_ids = service.get_supported_models_ids_for_entity_set_id(query.entity_set_id)
-        return model_ids
-    except EntitySetNotFoundError:
-        raise
-    except Exception as e:
-        raise RedaktoException(message=str(e), status_code=500)
+    return service.get_supported_models_ids_for_entity_set_id(query.entity_set_id)
 
 @router.get(
     "/get_entity_set_details",
@@ -85,7 +80,7 @@ def get_supported_model_ids(query: EntitySetQueryParams = Depends(),
     summary="Get details of an entity set by ID",
     description="Returns the details of an entity set given its ID.",
     response_description="Entity set details",
-    operation_id="getEntitySetDetails",
+    operation_id="GetEntitySetDetails",
     responses={
         200: {"description": "Successfully retrieved entity set details"},
         404: {"description": "Entity set not found"},
@@ -101,17 +96,8 @@ def get_entity_set_details(query: EntitySetQueryParams = Depends(),
     :param query: Query parameter containing the entity set ID, such as "codealltag" or "grascco"
     :param service: AppInfoService instance
     :return: Details of the specified entity set
-
-    Raises:
-        EntitySetNotFoundError: If the specified entity set does not exist
-        RedaktoException: For other internal errors
     """
-    try:
-        return service.get_entity_set_details_by_id(query.entity_set_id)
-    except EntitySetNotFoundError:
-        raise
-    except Exception as e:
-        raise RedaktoException(message=str(e), status_code=500)
+    return service.get_entity_set_details_by_id(query.entity_set_id)
 
 @router.get(
     "/get_supported_model_details",
@@ -119,7 +105,7 @@ def get_entity_set_details(query: EntitySetQueryParams = Depends(),
     summary="Get details of a supported model",
     description="Returns the details of a supported model within a specific entity set.",
     response_description="Supported model details",
-    operation_id="getSupportedModelDetails",
+    operation_id="GetSupportedModelDetails",
     responses={
         200: {"description": "Successfully retrieved supported model details"},
         404: {"description": "Entity set or model not found"},
@@ -128,24 +114,12 @@ def get_entity_set_details(query: EntitySetQueryParams = Depends(),
     }
 )
 def get_supported_model_details(queries: ModelQueryParams = Depends(),
-                                service: AppInfoService = Depends(get_app_info_service)) -> SupportedModelDetailsResponse | None:
+                                service: AppInfoService = Depends(get_app_info_service)) -> SupportedModelDetailsResponse:
     """
     Retrieve the details of a supported model by its ID within a specific entity set.
 
     :param queries: Query parameters containing the entity set ID and model ID
     :param service: AppInfoService instance
     :return: Details of the specified supported model
-
-    Raises:
-        EntitySetNotFoundError: If the specified entity set does not exist
-        ModelNotFoundError: If the specified model does not exist within the entity set
-        RedaktoException: For other internal errors
-
     """
-    try:
-        supported_model_details = service.get_supported_model_details(queries.entity_set_id, queries.model_id)
-        return supported_model_details
-    except (EntitySetNotFoundError, ModelNotFoundError):
-        raise
-    except Exception as e:
-        raise RedaktoException(message=str(e), status_code=500)
+    return service.get_supported_model_details(queries.entity_set_id, queries.model_id)
