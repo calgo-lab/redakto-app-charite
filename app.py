@@ -8,6 +8,13 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError as PydanticValidationError
 
+from api.exceptions_handler import (
+    configuration_exception_handler,
+    generic_exception_handler,
+    prediction_exception_handler,
+    resource_not_found_exception_handler, 
+    validation_exception_handler
+)
 from api.routes import app_info_routes, predict_routes
 from application.services.app_info_service import AppInfoService
 from application.services.prediction_service import PredictionService
@@ -16,13 +23,6 @@ from core.exceptions import (
     ConfigurationException,
     PredictionException,
     ResourceNotFoundException
-)
-from core.exceptions_handler import (
-    configuration_exception_handler,
-    generic_exception_handler,
-    prediction_exception_handler,
-    resource_not_found_exception_handler, 
-    validation_exception_handler
 )
 from core.logging import (
     configure_logging,

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redakto-app-charite-service
+spec:
+  type: ClusterIP
+  selector:
+    app: redakto-app-charite
+  ports:
+    - name: ui
+      protocol: TCP
+      port: 80
+      targetPort: 8501
+    - name: api
+      protocol: TCP
+      port: 8000
+      targetPort: 8000

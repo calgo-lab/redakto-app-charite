@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redakto-app-charite-deployment
+  namespace: calgo-lab
+spec:
+  selector:
+    matchLabels:
+      app: redakto-app-charite
+  template:
+    metadata:
+      labels:
+        app: redakto-app-charite
+    spec:
+      containers:
+        - name: redakto-app-charite-container
+          image: sksdotsauravs/redakto-app-charite:latest
+          ports:
+            - containerPort: 8000
+            - containerPort: 8501
+          resources:
+            requests:
+              memory: "16Gi"
+              cpu: "8"
+            limits:
+              memory: "24Gi"
+              cpu: "128"
